@@ -1,5 +1,6 @@
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from core.security import create_access_token, verify_password, get_password_hash
 from schemas.user import User
@@ -31,7 +32,7 @@ def sign_in(sign_in: SignIn, db: Session = Depends(get_db)):
         user = db.query(User).filter(User.email == sign_in.email).first()
         if not user or not verify_password(sign_in.password, user.password):
             logging.warning(f"Invalid sign-in attempt for email: {sign_in.email}")
-            raise HTTPException(status_code=400, detail="Invalid credentials")
+            return JSONResponse(status_code=400, content="Invalid credentials")
         
         access_token = create_access_token(data={"sub": user.email})
         refresh_token = create_access_token(data={"sub": user.email}, expires_in=7*24*60*60)
@@ -61,7 +62,7 @@ def sign_up(sign_up: SignUp, db: Session = Depends(get_db)):
         # Check if user already exists
         existing_user = db.query(User).filter(User.email == sign_up.email).first()
         if existing_user:
-            raise HTTPException(status_code=400, detail="User already exists")
+            return JSONResponse(status_code=400, content="User already exists")
 
         # Create the organization entry
         new_organization = Organization(
@@ -139,7 +140,7 @@ def reset_password(reset: ResetPassword, db: Session = Depends(get_db)):
     try:
         user = db.query(User).filter(User.email == reset.email).first()
         if not user:
-            raise HTTPException(status_code=400, detail="User not found")
+            return JSONResponse(status_code=400, content="User not found")
         
         # Update the user's password
         user.password = get_password_hash(reset.new_password)
@@ -176,7 +177,7 @@ def invite_member(payload: InviteMail, db: Session = Depends(get_db)):
     try:
         user = db.query(User).filter(User.email == payload.user_email).first()
         if not user:
-            raise HTTPException(status_code=400, detail="User not found")
+            return JSONResponse(status_code=400, content="User not found")
 
         # Create the member entry
         member = Member(org_id=payload.org_id, user_id=user.id, role_id=payload.role_id, status=1)
@@ -214,7 +215,7 @@ def delete_member(member_id: int, db: Session = Depends(get_db)):
     try:
         member = db.query(Member).filter(Member.id == member_id).first()
         if not member:
-            raise HTTPException(status_code=404, detail="Member not found")
+            return JSONResponse(status_code=400, content="Member not found")
         
         db.delete(member)
         db.commit()
@@ -248,7 +249,7 @@ def update_member_role(member_id: int, new_role_id: int, db: Session = Depends(g
     try:
         member = db.query(Member).filter(Member.id == member_id).first()
         if not member:
-            raise HTTPException(status_code=404, detail="Member not found")
+            return JSONResponse(status_code=400, content="Member not found")
         
         # Update the member's role
         member.role_id = new_role_id
