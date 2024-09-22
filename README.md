@@ -38,8 +38,8 @@ This project is an authentication service designed for a multi-tenant Software a
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/authentication-service.git
-   cd authentication-service
+   git clone https://github.com/yourusername/AUTH-SERVICE.git
+   cd AUTH-SERVICE
    ```
 
 2. Create and activate a virtual environment:
@@ -56,7 +56,7 @@ This project is an authentication service designed for a multi-tenant Software a
 4. Set up your MySQL database and update the database connection settings in the `.env` file:
    ```plaintext
    DATABASE_URL=mysql+pymysql://user:password@localhost/db_name
-   EMAIL_API_KEY=your_brevo_api_key
+   ....
    ```
 
 ## Usage
@@ -73,44 +73,135 @@ This project is an authentication service designed for a multi-tenant Software a
 ### User Management
 
 - **POST /signup**
-  - Description: Register a new user.
-  - Request Body: `{"email": "user@example.com", "password": "password", "organization_name": "OrgName"}`
+  - Description: Register a new user and create an organization.
+  - Request Body:
+    ```json
+    {
+      "email": "user@example.com",
+      "password": "password",
+      "organization_name": "OrgName"
+    }
+    ```
+  - Response:
+    ```json
+    {
+      "message": "User signed up successfully",
+      "user_id": 1,
+      "org_id": 1
+    }
+    ```
 
 - **POST /login**
   - Description: Authenticate a user.
-  - Request Body: `{"email": "user@example.com", "password": "password"}`
+  - Request Body:
+    ```json
+    {
+      "email": "user@example.com",
+      "password": "password"
+    }
+    ```
+  - Response:
+    ```json
+    {
+      "access_token": "access_token_value",
+      "refresh_token": "refresh_token_value"
+    }
+    ```
 
 ### Organization Management
 
 - **POST /organizations**
   - Description: Create a new organization.
-  - Request Body: `{"name": "OrgName", "details": "Some details about the organization"}`
+  - Request Body:
+    ```json
+    {
+      "name": "OrgName",
+      "details": "Some details about the organization"
+    }
+    ```
+  - Response:
+    ```json
+    {
+      "message": "Organization created successfully",
+      "org_id": 1
+    }
+    ```
 
 ### Role Management
 
 - **GET /stats/org-role-wise-users**
   - Description: Get a count of users grouped by organization and role.
+  - Response:
+    ```json
+    [
+      {
+        "organization": "OrgName",
+        "role": "Owner",
+        "user_count": 10
+      }
+    ]
+    ```
 
 ## Database Models
 
 ### User
-- `id`: Integer (Primary Key)
-- `email`: String (Unique)
-- `hashed_password`: String
-- `organization_id`: Integer (Foreign Key)
+Represents a user in the system.
+
+| Column Name     | Type     | Description                |
+|-----------------|----------|----------------------------|
+| `id`            | Integer  | Primary key                |
+| `email`         | String   | Unique email address       |
+| `password`      | String   | Hashed password            |
+| `profile`       | JSON     | Profile information        |
+| `status`        | Integer  | Status of the user         |
+| `settings`      | JSON     | User-specific settings     |
+| `created_at`    | BigInteger | Timestamp of creation   |
+| `updated_at`    | BigInteger | Timestamp of last update |
+
+---
 
 ### Organization
-- `id`: Integer (Primary Key)
-- `name`: String (Unique)
+Represents an organization.
+
+| Column Name     | Type     | Description                     |
+|-----------------|----------|---------------------------------|
+| `id`            | Integer  | Primary key                     |
+| `name`          | String   | Unique name of the organization |
+| `status`        | Integer  | Organization status             |
+| `personal`      | Boolean  | Indicates if personal org       |
+| `settings`      | JSON     | Organization settings           |
+| `created_at`    | BigInteger | Timestamp of creation        |
+| `updated_at`    | BigInteger | Timestamp of last update      |
+
+---
 
 ### Member
-- `user_id`: Integer (Foreign Key)
-- `organization_id`: Integer (Foreign Key)
-- `role_id`: Integer (Foreign Key)
+Links a user to an organization with a role.
+
+| Column Name     | Type     | Description                     |
+|-----------------|----------|---------------------------------|
+| `id`            | Integer  | Primary key                     |
+| `org_id`        | Integer  | Foreign key to Organization      |
+| `user_id`       | Integer  | Foreign key to User              |
+| `role_id`       | Integer  | Foreign key to Role              |
+| `status`        | Integer  | Member status                   |
+| `settings`      | JSON     | Member-specific settings        |
+| `created_at`    | BigInteger | Timestamp of creation        |
+| `updated_at`    | BigInteger | Timestamp of last update      |
+
+---
 
 ### Role
-- `id`: Integer (Primary Key)
-- `name`: String (Unique)
+Represents a role in an organization.
+
+| Column Name     | Type     | Description                |
+|-----------------|----------|----------------------------|
+| `id`            | Integer  | Primary key                |
+| `name`          | String   | Role name                  |
+| `description`   | String   | Role description           |
+| `org_id`        | Integer  | Foreign key to Organization |
+
+
 
 ## Testing
 
@@ -128,7 +219,3 @@ Contributions are welcome! Please follow these steps to contribute:
 3. Make your changes and commit them: `git commit -m 'Add some feature'`
 4. Push to the branch: `git push origin feature/YourFeature`
 5. Create a new Pull Request.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
