@@ -15,7 +15,6 @@ This project is an authentication service designed for a multi-tenant Software a
 - [Database Models](#database-models)
 - [Testing](#testing)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Features
 
@@ -23,7 +22,7 @@ This project is an authentication service designed for a multi-tenant Software a
 - **Organization Management**: Enables the creation and management of organizations.
 - **Role-Based Access Control**: Supports multiple roles within organizations (e.g., Admin, Member).
 - **Statistics APIs**: Provides insights into user distribution by organization and role.
-- **Email Integration**: Sends verification and notification emails using Brevo (formerly Sendinblue).
+- **Email Integration**: Sends verification and notification emails.
 
 ## Technologies Used
 
@@ -31,7 +30,6 @@ This project is an authentication service designed for a multi-tenant Software a
 - **FastAPI**: Web framework for building APIs quickly.
 - **SQLAlchemy**: ORM for database interactions.
 - **MySQL**: Database for storing user and organization data.
-- **Brevo**: Email service provider for sending emails.
 - **Docker**: For containerization (optional).
 
 ## Installation
@@ -56,6 +54,7 @@ This project is an authentication service designed for a multi-tenant Software a
 4. Set up your MySQL database and update the database connection settings in the `.env` file:
    ```plaintext
    DATABASE_URL=mysql+pymysql://user:password@localhost/db_name
+   
    ....
    ```
 
@@ -91,7 +90,7 @@ This project is an authentication service designed for a multi-tenant Software a
     }
     ```
 
-- **POST /login**
+- **POST /signin**
   - Description: Authenticate a user.
   - Request Body:
     ```json
